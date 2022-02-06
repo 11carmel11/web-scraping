@@ -11,27 +11,25 @@ home_res = get(url)
 
 html = BeautifulSoup(home_res, "html.parser")
 
-# titles_list = html.find_all("h4")  # titles
-
-# texts_list = html.find_all("ol")  # texts
 
 pastes_list = html.find("section")
 
-for paste in pastes_list:
-    # title section
+
+def scrape_title(paste):
     title = paste.find("h4")
 
     if hasattr(title, "text"):
-        title = title.text.strip()
+        return title.text.strip()
     else:
-        title = empty["title"]
+        return empty["title"]
 
-    # content section
+
+def scrape_content(paste):
     ol_list = paste.find("ol")
 
     if not hasattr(ol_list, "text"):
         # paste must have context!
-        continue
+        return None
 
     content = ""
     i = 1
@@ -42,12 +40,31 @@ for paste in pastes_list:
             content += f"{i}. {stripped}\n"
             content += "\n"
             i += 1
+    return content
 
-    # author and date section
+
+def scrape_author_and_date(paste):
     closure_data = paste.find("div", {"class": "col-sm-6"}).text
     splitted_data = closure_data.strip().split(" ")
-    author = splitted_data[2] or empty["author"]
+
+    author = splitted_data[2] if bool(splitted_data[2]) else empty["author"]
     date = "".join(map(lambda x: f"{x} ", splitted_data[4:]))
 
+    return [author, date]
+
+
+for paste in pastes_list:
+    # title section
+    title = scrape_title(paste)
+
+    # content section
+    content = scrape_content(paste)
+    if not content:
+        continue
+
+    # author and date section
+    author, date = scrape_author_and_date(paste)
+
+    # inserting to db
     final_data = {"author": author, "date": date, "content": content, "title": title}
     db.append(final_data)
