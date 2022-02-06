@@ -3,6 +3,7 @@ from helpers import get
 from bs4 import *
 
 empty = {"title": "UNKNOWN TITLE", "author": "ANONYMOUS AUTHOR"}
+db = []
 
 url = "http://strongerw2ise74v3duebgsvug4mehyhlpa7f6kfwnas7zofs3kov7yd.onion/all"
 
@@ -45,5 +46,8 @@ for paste in pastes_list:
     # author and date section
     closure_data = paste.find("div", {"class": "col-sm-6"}).text
     splitted_data = closure_data.strip().split(" ")
-    author = splitted_data[2]
+    author = splitted_data[2] or empty["author"]
     date = "".join(map(lambda x: f"{x} ", splitted_data[4:]))
+
+    final_data = {"author": author, "date": date, "content": content, "title": title}
+    db.append(final_data)
