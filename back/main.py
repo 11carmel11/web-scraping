@@ -2,7 +2,7 @@
 from helpers import get
 from bs4 import *
 
-empty = {"title": "UNKNOWN TITLE"}
+empty = {"title": "UNKNOWN TITLE", "author": "ANONYMOUS AUTHOR"}
 
 url = "http://strongerw2ise74v3duebgsvug4mehyhlpa7f6kfwnas7zofs3kov7yd.onion/all"
 
@@ -24,3 +24,20 @@ for paste in pastes_list:
         title = title.text.strip()
     else:
         title = empty["title"]
+
+    # content section
+    content = ""
+    ol_list = paste.find("ol")
+
+    if not hasattr(ol_list, "text"):
+        # paste must have context!
+        continue
+
+    i = 1
+    for text in ol_list:
+        text = text.text
+        stripped = text.strip()
+        if text == stripped:
+            content += f"{i}. {stripped}\n"
+            content += "\n"
+            i += 1
