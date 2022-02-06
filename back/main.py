@@ -26,13 +26,13 @@ for paste in pastes_list:
         title = empty["title"]
 
     # content section
-    content = ""
     ol_list = paste.find("ol")
 
     if not hasattr(ol_list, "text"):
         # paste must have context!
         continue
 
+    content = ""
     i = 1
     for text in ol_list:
         text = text.text
@@ -41,3 +41,9 @@ for paste in pastes_list:
             content += f"{i}. {stripped}\n"
             content += "\n"
             i += 1
+
+    # author and date section
+    closure_data = paste.find("div", {"class": "col-sm-6"}).text
+    splitted_data = closure_data.strip().split(" ")
+    author = splitted_data[2]
+    date = "".join(map(lambda x: f"{x} ", splitted_data[4:]))
