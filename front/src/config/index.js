@@ -10,3 +10,5 @@ export const BASE_WEB_DATA = {
   contentInfo: { tag: "ol" },
   dataInfo: { tag: "div", class: "col-sm-6" },
 };
+
+export const timeout = 120000;
