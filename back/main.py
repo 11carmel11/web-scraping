@@ -6,7 +6,32 @@ from helpers import (
     scrape_content,
     scrape_author_and_date,
 )
-from config import url
+from config import url, port
+
+from flask import Flask, request
+from flask_cors import CORS, cross_origin
+import json
+
+app = Flask(__name__)
+CORS(app)
+
+
+@app.route("/")
+def index():
+    return "hello from index"
+
+
+@app.route("/scrape", methods=["POST"])
+@cross_origin()
+def post_scrape_by_request():
+    body = request.json
+    url = body.get("url")
+    pastes_list_info = body.get("pastesListInfo")
+    title_info = body.get("titleInfo")
+    content_info = body.get("contentInfo")
+    data_info = body.get("dataInfo")
+    scrape_db = scrape(url, pastes_list_info, title_info, content_info, data_info)
+    return json.dumps(scrape_db)
 
 
 def scrape(url, pastes_list_info, title_info, content_info, data_info):
@@ -40,15 +65,5 @@ def scrape(url, pastes_list_info, title_info, content_info, data_info):
     return pastes_db
 
 
-def main():
-    test_db = scrape(
-        url,
-        {"tag": "section"},
-        {"tag": "h4"},
-        {"tag": "ol"},
-        {"tag": "div", "class": "col-sm-6"},
-    )
-    print(test_db)
-
-
-main()
+if __name__ == "__main__":
+    app.run(port=port)

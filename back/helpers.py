@@ -39,7 +39,7 @@ def scrape_title(paste, title_info):
 def scrape_content(paste, content_info):
     content = scrape_element(paste, content_info)
 
-    if hasattr(content_list, "text"):
+    if hasattr(content, "text"):
         # paste must have content!
         return content.text.strip()
 
