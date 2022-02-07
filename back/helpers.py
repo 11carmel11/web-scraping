@@ -37,22 +37,11 @@ def scrape_title(paste, title_info):
 
 
 def scrape_content(paste, content_info):
-    content_list = scrape_element(paste, content_info)
+    content = scrape_element(paste, content_info)
 
-    if not hasattr(content_list, "text"):
+    if hasattr(content_list, "text"):
         # paste must have content!
-        return None
-
-    content = ""
-    i = 1
-    for text in content_list:
-        text = text.text
-        stripped = text.strip()
-        if text == stripped:
-            content += f"{i}. {stripped}\n"
-            content += "\n"
-            i += 1
-    return content
+        return content.text.strip()
 
 
 def scrape_author_and_date(paste, data_info):
