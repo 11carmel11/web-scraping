@@ -6,8 +6,20 @@ from bs4 import *
 url = "http://strongerw2ise74v3duebgsvug4mehyhlpa7f6kfwnas7zofs3kov7yd.onion/all"
 
 
-def scrape_title(paste, title_tag):
-    title = paste.find(title_tag)  # h4
+def scrape_element(paste, element_info):
+    element_tag = element_info.get("tag")
+    element_class = element_info.get("class")
+
+    if bool(element_class):
+        element = paste.find(element_tag, {"class": element_class})
+    else:
+        element = paste.find(element_tag)
+
+    return element
+
+
+def scrape_title(paste, title_info):
+    title = scrape_element(paste, title_info)  # h4
 
     if hasattr(title, "text"):
         return title.text.strip()
@@ -15,11 +27,11 @@ def scrape_title(paste, title_tag):
         return empty["title"]
 
 
-def scrape_content(paste, content_tag):
-    content_list = paste.find(content_tag)  # ol
+def scrape_content(paste, content_info):
+    content_list = scrape_element(paste, content_info)  # ol
 
     if not hasattr(content_list, "text"):
-        # paste must have context!
+        # paste must have content!
         return None
 
     content = ""
@@ -34,36 +46,42 @@ def scrape_content(paste, content_tag):
     return content
 
 
-def scrape_author_and_date(paste, data_tag, data_class):
-    closure_data = paste.find(data_tag, {"class": data_class}).text  # div, col-sm-6
-    splitted_data = closure_data.strip().split(" ")
+def scrape_author_and_date(paste, data_info):
+    closure_data = scrape_element(paste, data_info)  # div, col-sm-6
 
-    author = splitted_data[2] if bool(splitted_data[2]) else empty["author"]
-    date = "".join(map(lambda x: f"{x} ", splitted_data[4:]))
+    splitted_data_by_words = closure_data.text.strip().split(" ")
+
+    author = (
+        splitted_data_by_words[2]
+        if bool(splitted_data_by_words[2])
+        else empty["author"]
+    )
+
+    date = "".join(map(lambda x: f"{x} ", splitted_data_by_words[4:]))
 
     return [author, date]
 
 
-def scrape(url, title_tag, content_tag, data_tag, data_class):
+def scrape(url, pastes_list_info, title_info, content_info, data_info):
     db = []
 
     home_res = get(url)
 
     html = BeautifulSoup(home_res, "html.parser")
 
-    pastes_list = html.find("section")
+    pastes_list = scrape_element(html, pastes_list_info)
 
     for paste in pastes_list:
         # title section
-        title = scrape_title(paste, title_tag)
+        title = scrape_title(paste, title_info)
 
         # content section
-        content = scrape_content(paste, content_tag)
+        content = scrape_content(paste, content_info)
         if not content:
             continue
 
         # author and date section
-        author, date = scrape_author_and_date(paste, data_tag, data_class)
+        author, date = scrape_author_and_date(paste, data_info)
 
         # inserting to db
         final_data = {
@@ -77,5 +95,11 @@ def scrape(url, title_tag, content_tag, data_tag, data_class):
     return db
 
 
-test_db = scrape(url, "h4", "ol", "div", "col-sm-6")
-print(len(test_db))
+test_db = scrape(
+    url,
+    {"tag": "section"},
+    {"tag": "h4"},
+    {"tag": "ol"},
+    {"tag": "div", "class": "col-sm-6"},
+)
+print(test_db)
