@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import axios from "axios";
 import { BASE_WEB_DATA, SERVER_API, timeout } from "./config";
 import Paste from "./components/Paste";
+import Loader from "./components/Loader";
 
 const StyledList = styled.ul`
   display: grid;
@@ -37,7 +38,7 @@ export default function App() {
           ))}
         </StyledList>
       ) : (
-        "waiting"
+        <Loader />
       )}
     </>
   );
