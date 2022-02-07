@@ -47,7 +47,7 @@ def stream():
             scrape_db = relevant_scraper()
             data = json.dumps(scrape_db)
             yield f"data: {data} \n\n"
-            sleep(5)
+            sleep(120)
 
     return Response(fetch_data(), mimetype="text/event-stream")
 

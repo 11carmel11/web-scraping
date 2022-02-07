@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { nanoid } from "nanoid";
-import axios from "axios";
-import { BASE_WEB_DATA, SERVER_API, timeout } from "./config";
 import Paste from "./components/Paste";
 import Loader from "./components/Loader";
+import { asyncEffect } from "./helpers";
 
 const StyledList = styled.ul`
   display: grid;
@@ -16,17 +15,7 @@ export default function App() {
   const [pastes, setPastes] = useState([]);
 
   useEffect(() => {
-    const setPastesAsync = async () => {
-      const { data } = await axios.post(SERVER_API, BASE_WEB_DATA);
-      setPastes(data);
-    };
-
-    // component did mount
-    setPastesAsync();
-    const interval = setInterval(setPastesAsync, timeout);
-
-    // component did unmount
-    return () => clearInterval(interval);
+    asyncEffect(setPastes);
   }, []);
 
   return (
