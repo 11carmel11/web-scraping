@@ -58,3 +58,34 @@ def scrape_author_and_date(paste, data_info):
     date = "".join(map(lambda x: f"{x} ", splitted_data_by_words[4:]))
 
     return [author, date]
+
+
+def scrape(url, pastes_list_info, title_info, content_info, data_info):
+    pastes_db = []
+
+    html_soup = get_html_soup(url)
+
+    pastes_list = scrape_element(html_soup, pastes_list_info)
+
+    for paste in pastes_list:
+        # title section
+        title = scrape_title(paste, title_info)
+
+        # content section
+        content = scrape_content(paste, content_info)
+        if not content:
+            continue
+
+        # author and date section
+        author, date = scrape_author_and_date(paste, data_info)
+
+        # inserting to db
+        final_data = {
+            "title": title,
+            "author": author,
+            "content": content,
+            "date": date,
+        }
+        pastes_db.append(final_data)
+
+    return pastes_db

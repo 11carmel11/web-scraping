@@ -8,6 +8,7 @@ const StyledContainer = styled.div`
   padding: 10px;
   margin-top: 20px;
   display: table-caption;
+  height: fit-content;
 `;
 
 const StyledText = styled.p`
