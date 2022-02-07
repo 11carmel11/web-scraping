@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 import axios from "axios";
-import Paste from "./components/Paste";
 import { BASE_WEB_DATA, SERVER_API } from "./config";
+import Paste from "./components/Paste";
+
+const StyledList = styled.ul`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+`;
 
 export default function App() {
   const [pastes, setPastes] = useState([]);
@@ -18,11 +25,11 @@ export default function App() {
   return (
     <>
       {pastes.length ? (
-        <ol>
+        <StyledList>
           {pastes.map((paste, i) => (
             <Paste key={i + paste.title} paste={paste} />
           ))}
-        </ol>
+        </StyledList>
       ) : (
         "waiting"
       )}
