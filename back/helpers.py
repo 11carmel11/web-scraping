@@ -1,4 +1,5 @@
 from config import proxies, empty
+import dateparser as dp
 from bs4 import *
 import requests
 
@@ -57,7 +58,9 @@ def scrape_author_and_date(paste, data_info):
 
     date = "".join(map(lambda x: f"{x} ", splitted_data_by_words[4:]))
 
-    return [author, date]
+    formatted_date = date_formatter(date)
+
+    return [author, formatted_date]
 
 
 def scrape(url, pastes_list_info, title_info, content_info, data_info):
@@ -89,3 +92,7 @@ def scrape(url, pastes_list_info, title_info, content_info, data_info):
         pastes_db.append(final_data)
 
     return pastes_db
+
+
+def date_formatter(date):
+    return dp.parse(date).strftime("%b %d %Y %H:%M:%S")
