@@ -1,4 +1,4 @@
-from config import proxies, empty
+from config import proxies, empty, db
 import dateparser as dp
 from bs4 import *
 import requests
@@ -120,7 +120,8 @@ def scrape(
             )
             pastes_db += more_pastes
 
-    return sort_pastes_db(pastes_db)
+    sorted_pastes_db = sort_pastes_db(pastes_db)
+    return sorted_pastes_db
 
 
 def date_formatter(date):
@@ -132,3 +133,17 @@ def sort_pastes_db(pastes_db):
         return dp.parse(paste["date"]).timestamp()
 
     return list(reversed(sorted(pastes_db, key=sort_by_date)))
+
+
+def insert_to_collection(collection_name, items_to_insert):
+    old_collection = db[collection_name]
+    old_collection.drop()
+
+    collection = db[collection_name]
+    inserted_counter = 0
+
+    for item in items_to_insert:
+        inserted_item = collection.insert_one(item)
+        inserted_counter += 1
+
+    return len(items_to_insert) == inserted_counter

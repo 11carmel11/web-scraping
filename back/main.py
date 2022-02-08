@@ -1,5 +1,5 @@
 # command curl --proxy socks5h://127.0.0.1:9050 http://strongerw2ise74v3duebgsvug4mehyhlpa7f6kfwnas7zofs3kov7yd.onion/all
-from helpers import scrape
+from helpers import scrape, insert_to_collection
 from config import port
 
 from flask import Flask, request, Response
@@ -56,6 +56,7 @@ def stream():
             data = json.dumps(scrape_db)
             yield f"data: {data} \n\n"
             if not first_scrape:
+                insert_to_collection(url, scrape_db)
                 sleep(120)
             first_scrape = False
 
