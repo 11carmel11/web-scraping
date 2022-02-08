@@ -13,4 +13,12 @@ export const BASE_WEB_DATA = {
   titleInfo: { tag: "h4" },
   contentInfo: { tag: "ol" },
   dataInfo: { tag: "div", class: "col-sm-6" },
+  paginationInfo: {
+    tag: "ul",
+    class: "pagination",
+    next_page_tag_info: {
+      tag: "a",
+      attr: "href",
+    },
+  },
 };

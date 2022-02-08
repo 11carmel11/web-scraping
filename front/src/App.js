@@ -7,21 +7,19 @@ import Paste from "./components/Paste";
 
 export default function App() {
   const [pastes, setPastes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const loading = !pastes.length;
 
   useEffect(() => {
     asyncEffect(setPastes);
-
-    setLoading(false);
   }, []);
 
   if (loading) return <Loader />;
-
-  return (
-    <StyledPastesList>
-      {pastes.map((paste) => (
-        <Paste key={nanoid()} paste={paste} />
-      ))}
-    </StyledPastesList>
-  );
+  else
+    return (
+      <StyledPastesList>
+        {pastes.map((paste) => (
+          <Paste key={nanoid()} paste={paste} />
+        ))}
+      </StyledPastesList>
+    );
 }

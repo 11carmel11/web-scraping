@@ -29,9 +29,16 @@ def set_scrape_data():
     title_info = body.get("titleInfo")
     content_info = body.get("contentInfo")
     data_info = body.get("dataInfo")
+    pagination_info = body.get("paginationInfo")
 
     partial_scrappers[url] = partial(
-        scrape, url, pastes_list_info, title_info, content_info, data_info
+        scrape,
+        url,
+        pastes_list_info,
+        title_info,
+        content_info,
+        data_info,
+        pagination_info,
     )
 
     return "data set"
@@ -42,12 +49,15 @@ def stream():
     url = request.args.get("url")
 
     def fetch_data():
+        first_scrape = True
         while True:
             relevant_scraper = partial_scrappers[url]
-            scrape_db = relevant_scraper()
+            scrape_db = relevant_scraper(first_scrape=first_scrape)
             data = json.dumps(scrape_db)
             yield f"data: {data} \n\n"
-            sleep(120)
+            if not first_scrape:
+                sleep(120)
+            first_scrape = False
 
     return Response(fetch_data(), mimetype="text/event-stream")
 

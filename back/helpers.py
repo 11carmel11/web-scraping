@@ -2,6 +2,7 @@ from config import proxies, empty
 import dateparser as dp
 from bs4 import *
 import requests
+import json
 
 
 def request_with_proxy(url):
@@ -21,11 +22,9 @@ def scrape_element(parent_element, element_info):
     element_class = element_info.get("class")
 
     if bool(element_class):
-        element = parent_element.find(element_tag, {"class": element_class})
+        return parent_element.find(element_tag, {"class": element_class})
     else:
-        element = parent_element.find(element_tag)
-
-    return element
+        return parent_element.find(element_tag)
 
 
 def scrape_title(paste, title_info):
@@ -63,7 +62,15 @@ def scrape_author_and_date(paste, data_info):
     return [author, formatted_date]
 
 
-def scrape(url, pastes_list_info, title_info, content_info, data_info):
+def scrape(
+    url,
+    pastes_list_info,
+    title_info,
+    content_info,
+    data_info,
+    pagination_info=None,
+    first_scrape=False,
+):
     pastes_db = []
 
     html_soup = get_html_soup(url)
@@ -91,8 +98,37 @@ def scrape(url, pastes_list_info, title_info, content_info, data_info):
         }
         pastes_db.append(final_data)
 
-    return pastes_db
+    if bool(pagination_info) and not first_scrape:
+        next_page_tag_info = pagination_info.get("next_page_tag_info")
+        next_page_tag_name = next_page_tag_info.get("tag")
+        url_attr_name = next_page_tag_info.get("attr")
+
+        next_pages_list = scrape_element(html_soup, pagination_info)
+
+        next_pages_tags = next_pages_list.findAll(next_page_tag_name)
+
+        next_pages_url_set = set()
+
+        for tag in next_pages_tags:
+            if hasattr(tag, url_attr_name):
+                next_page_url = tag[url_attr_name]
+                next_pages_url_set.add(next_page_url)
+
+        for page_url in next_pages_url_set:
+            more_pastes = scrape(
+                page_url, pastes_list_info, title_info, content_info, data_info
+            )
+            pastes_db += more_pastes
+
+    return sort_pastes_db(pastes_db)
 
 
 def date_formatter(date):
     return dp.parse(date).strftime("%b %d %Y %H:%M:%S")
+
+
+def sort_pastes_db(pastes_db):
+    def sort_by_date(paste):
+        return dp.parse(paste["date"]).timestamp()
+
+    return list(reversed(sorted(pastes_db, key=sort_by_date)))
