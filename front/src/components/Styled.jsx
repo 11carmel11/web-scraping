@@ -18,3 +18,7 @@ export const StyledPasteContainer = styled.div`
 export const StyledText = styled.p`
   overflow-wrap: break-word;
 `;
+
+export const ContentWord = styled.small`
+  color: ${(props) => props.colorName};
+`;
