@@ -28,20 +28,26 @@ export const asyncEffect = async (stateSetter) => {
 
 export const polarityCheck = ({ content }) => {
   const { score, positive, negative } = sentiment.analyze(content);
-  const words = content.split(" ");
+  const words = content.replace(/\n/g, " ").split(" ");
+
   const colorfulSentence = (
     <>
       {words.map((word) => {
-        if (!word.trim()) return <></>;
+        word = word.trim();
+        if (!word) return <></>;
+        const lowerCaseWord = word.toLowerCase();
+
         let color = "inherit";
-        if (word in positive) {
+
+        if (positive.includes(lowerCaseWord)) {
           color = "chartreuse";
-        } else if (word in negative) {
-          color = "chartreuse";
+        } else if (negative.includes(lowerCaseWord)) {
+          color = "crimson";
         }
+
         return (
           <ContentWord key={nanoid()} colorName={color}>
-            {word.trim()}{" "}
+            {word}{" "}
           </ContentWord>
         );
       })}
