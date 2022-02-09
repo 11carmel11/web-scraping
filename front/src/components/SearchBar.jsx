@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { NO_SUCH_PASTE } from "../config";
+import React, { useContext, useEffect, useState } from "react";
+import PastesContext from "../contexts/pastes/context";
 
 let promisesInQueue = 0;
 
@@ -12,23 +12,31 @@ const delay = (delaySeconds) =>
     }, 1000 * delaySeconds);
   });
 
-export default function SearchBar({ pastes, pastesSetter }) {
+export default function SearchBar() {
+  const { dispatch, pastes } = useContext(PastesContext);
   const [filterText, setFilterText] = useState("");
 
   const inputChangeHandler = async ({ target: { value } }) => {
     setFilterText(value);
-    await delay(2);
+    await delay(1);
 
     if (!promisesInQueue) {
-      const filteredPastes = pastes.filter(({ title }) =>
-        title.toLowerCase().includes(value.toLowerCase())
-      );
+      const mappedPastes = pastes.map((paste) => {
+        paste.hide = !paste.title.toLowerCase().includes(value.toLowerCase());
+        return paste;
+      });
 
-      filteredPastes[0] = filteredPastes[0] || NO_SUCH_PASTE;
+      const action = { payload: mappedPastes, type: "FILTER" };
 
-      pastesSetter(filteredPastes);
+      dispatch(action);
     }
   };
+
+  useEffect(() => {
+    pastes.every((paste) => !paste.hide) &&
+      inputChangeHandler({ target: { value: "" } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pastes]);
 
   return (
     <>

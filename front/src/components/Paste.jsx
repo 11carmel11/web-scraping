@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ShowMoreText from "react-show-more-text";
-import { polarityCheck } from "../helpers";
 import { StyledText, StyledPasteContainer } from "./Styled";
+import { polarityCheck } from "../helpers";
 
 export default function Paste({ paste }) {
   const [polarity, setPolarity] = useState(0);
@@ -14,7 +14,7 @@ export default function Paste({ paste }) {
   }, [paste]);
 
   return (
-    <StyledPasteContainer>
+    <StyledPasteContainer hidden={paste.hide}>
       <h4>{paste.title}</h4>
       <ShowMoreText>
         <StyledText>{text}</StyledText>

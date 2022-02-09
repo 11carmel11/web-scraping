@@ -1,29 +1,31 @@
-import axios from "axios";
 import Sentiment from "sentiment";
 import { nanoid } from "nanoid";
-import { ContentWord } from "./components/Styled";
+import axios from "axios";
 import { BASE_WEB_DATA, SET_DATA_API, SSE_API } from "./config";
+import { ContentWord } from "./components/Styled";
 
 const sentiment = new Sentiment();
 
 const setWebData = async () => await axios.post(SET_DATA_API, BASE_WEB_DATA);
 
 class Connection extends EventSource {
-  constructor(stateSetter) {
+  constructor(dispatch) {
     super(SSE_API);
     this.onerror = this.close;
     this.onmessage = ({ data }) => {
-      const pastes = JSON.parse(data);
-      stateSetter(pastes);
+      const payload = JSON.parse(data);
+      const type = "FETCH";
+
+      dispatch({ type, payload });
     };
   }
 }
 
-const createConnection = (stateSetter) => new Connection(stateSetter);
+const createConnection = (dispatch) => new Connection(dispatch);
 
-export const asyncEffect = async (stateSetter) => {
+export const asyncEffect = async (dispatch) => {
   await setWebData();
-  createConnection(stateSetter);
+  createConnection(dispatch);
 };
 
 export const polarityCheck = ({ content }) => {
@@ -34,7 +36,7 @@ export const polarityCheck = ({ content }) => {
     <>
       {words.map((word) => {
         word = word.trim();
-        if (!word) return <></>;
+        if (!word) return null;
         const lowerCaseWord = word.toLowerCase();
 
         let color = "inherit";
