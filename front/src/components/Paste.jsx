@@ -8,13 +8,9 @@ export default function Paste({ paste }) {
   const [text, setText] = useState(paste.content);
 
   useEffect(() => {
-    const setPolarityAsync = () => {
-      const { text, score } = polarityCheck(paste);
-      setPolarity(score);
-      setText(text);
-    };
-
-    setPolarityAsync();
+    const { text, score } = polarityCheck(paste);
+    setPolarity(score);
+    setText(text);
   }, [paste]);
 
   return (

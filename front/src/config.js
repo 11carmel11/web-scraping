@@ -22,3 +22,10 @@ export const BASE_WEB_DATA = {
     },
   },
 };
+
+export const NO_SUCH_PASTE = {
+  title: "",
+  content: "",
+  date: "",
+  author: "NO SUCH PASTES",
+};
