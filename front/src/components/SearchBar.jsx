@@ -1,40 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
+import { DebounceInput } from "react-debounce-input";
 import PastesContext from "../contexts/pastes/context";
-
-let promisesInQueue = 0;
-
-const delay = (delaySeconds) =>
-  new Promise((resolve) => {
-    promisesInQueue += 1;
-    setTimeout(() => {
-      promisesInQueue -= 1;
-      resolve();
-    }, 1000 * delaySeconds);
-  });
 
 export default function SearchBar() {
   const { dispatch, pastes } = useContext(PastesContext);
   const [filterText, setFilterText] = useState("");
 
-  const inputChangeHandler = async ({ target: { value } }) => {
+  const filterPastes = (value) => {
     setFilterText(value);
-    await delay(1);
 
-    if (!promisesInQueue) {
-      const mappedPastes = pastes.map((paste) => {
-        paste.hide = !paste.title.toLowerCase().includes(value.toLowerCase());
-        return paste;
-      });
+    const mappedPastes = pastes.map((paste) => {
+      paste.hide = !paste.title.toLowerCase().includes(value.toLowerCase());
+      return paste;
+    });
 
-      const action = { payload: mappedPastes, type: "FILTER" };
+    const action = { payload: mappedPastes, type: "FILTER" };
 
-      dispatch(action);
-    }
+    dispatch(action);
+  };
+
+  const inputChangeHandler = async ({ target: { value } }) => {
+    filterPastes(value);
   };
 
   useEffect(() => {
-    pastes.every((paste) => !paste.hide) &&
-      inputChangeHandler({ target: { value: "" } });
+    pastes.every((paste) => !paste.hide) && filterPastes("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pastes]);
 
@@ -43,10 +33,12 @@ export default function SearchBar() {
       <label htmlFor="filter-input">
         <h3>filter pastes by title:</h3>
       </label>
-      <input
+      <DebounceInput
         id="filter-input"
+        type="text"
         value={filterText}
-        onInput={inputChangeHandler}
+        onChange={inputChangeHandler}
+        debounceTimeout="1500"
       />
     </>
   );
