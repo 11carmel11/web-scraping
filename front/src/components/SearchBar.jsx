@@ -24,7 +24,11 @@ export default function SearchBar() {
   };
 
   useEffect(() => {
-    pastes.every((paste) => !paste.hide) && filterPastes("");
+    if (
+      pastes.filter((paste) => !paste.hide).length === pastes.length &&
+      filterText
+    )
+      filterPastes("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pastes]);
 
